@@ -75,6 +75,7 @@ const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+Stri
 const fd=s=>s?D(s).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'}):'';
 const fs=s=>D(s).toLocaleDateString(undefined,{day:'numeric',month:'short'});
 let S={ev:[]};try{S=JSON.parse(localStorage.getItem('hd'))||S}catch(e){}
+const fixN=o=>JSON.parse(JSON.stringify(o).replace(/lidha/gi,m=>m=='LIDHA'?'LISHA':m[0]=='L'?'Lisha':'lisha'));try{S=fixN(S)}catch(e){}
 if(!Array.isArray(S.ev))S={ev:[]};
 const save=()=>{try{localStorage.setItem('hd',JSON.stringify(S))}catch(e){}};
 let V={p:'home'},open={},R='';
@@ -116,7 +117,7 @@ christmas:[['what','Christmas with / host'],...gen],
 special:[['what','Occasion'],...gen]};
 const X=[['details','Details','fields'],['notes','Notes','notes'],['deco','Decorations','check'],['food','Food ideas & prep','meal'],['gifti','Gift ideas','list'],['giftb','Gifts bought','check'],['todo','Timeline & to-do','check']];
 const SEC={away:[['details','Details','fields'],['notes','Notes','notes'],['pack','Packing list','pack'],['plans','Plans for the days','list'],['area','What’s in the area','list'],['meals','Meals & snacks','meal'],['todo','Timeline & to-do','check']],birthday:X,christmas:X,special:X};
-const GR=['Maia','Lidha','General'];
+const GR=['Maia','Lisha','General'];
 const SG={away:'Weekend away',birthday:'Birthday',christmas:'Christmas',special:'Special occasion'},AD={away:'weekend away',birthday:'birthday',christmas:'Christmas',special:'special occasion'};
 const KL=['Event','Birthday','Christmas','Special occasion','Day out'],KD={'Event':'special','Birthday':'birthday','Christmas':'christmas','Special occasion':'special','Day out':'away'};
 const subs=()=>[];
@@ -137,6 +138,7 @@ const li=(x,i,tick)=>`<li class="${x.d?'done':x.when&&x.when<iso(new Date())?'la
 if(ty=='fields'){b=FL[e.cat].map(([f,l,tp])=>`<label>${l}<input data-f="${f}" type="${tp||'text'}" value="${esc(e.f[f])}"></label>`).join('')+`<a id="wx" href="${wxh(e)}" target="_blank" rel="noopener">See the forecast ↗</a>`}
 else{
 if(ty=='pack')b=GR.map(g=>`<h4>${g}</h4><ul>${it.map((x,i)=>x.w==g?li(x,i,1):'').join('')}</ul>`).join('');
+else if(ty=='meal'&&id=='food')b=`<ul>${it.map((x,i)=>`<li><span><b>${esc(x.t)}</b> <small>${x.ty||''}</small>${x.ing?`<br><small>🛒 ${esc(x.ing)}</small>`:''}</span><button class="x" data-a="del" data-i="${i}" aria-label="Remove">×</button></li>`).join('')}</ul>`;
 else if(ty=='meal')b=it.map((x,i)=>`<div class="meal ${/^Toddler/.test(x.ty)?'tod':''}"><b>${esc(x.t)}</b> <small>${x.ty}</small>${x.ing?`<p>🛒 ${esc(x.ing)}</p>`:''}<button class="x" data-a="del" data-i="${i}" aria-label="Remove">×</button></div>`).join('');
 else if(ty=='events')b=`<ul>${it.map((x,i)=>`<li><span><b>${esc(x.t)}</b> <small>${esc(x.k)}${x.date?' · '+fs(x.date)+(x.end&&x.end>x.date?' – '+fs(x.end):''):''}</small></span><button class="x" data-a="del" data-i="${i}" aria-label="Remove">×</button></li>`).join('')}</ul>`;
 else if(ty=='notes')b=`<textarea data-n="${id}" rows="6" style="width:100%" placeholder="Anything to remember…">${esc(o.text||'')}</textarea>`;
@@ -173,7 +175,7 @@ else if(a=='mo')V.m=new Date(V.m.getFullYear(),V.m.getMonth()+(+b.dataset.n),1);
 else if(a=='newev'){let k=1;while(S.ev.some(x=>x.cat==V.c&&x.name==SG[V.c]+' '+k))k++;S.ev.push({id:uid(),cat:V.c,name:SG[V.c]+' '+k,f:{date:'',days:''},s:{}})}
 else if(a=='bk'||a=='rs'){const t=$('#bkt'),m=$('#bkm');
 if(a=='bk'){t.value=JSON.stringify(S);t.select();let ok=0;try{ok=document.execCommand('copy')}catch(x){}m.textContent=ok?'Copied! Paste it somewhere safe, like Notes.':'Select the text above, copy it and keep it somewhere safe.';return}
-try{const j=JSON.parse(t.value);if(!Array.isArray(j.ev))throw 0;S=j}catch(x){m.textContent='That doesn’t look like a backup.';return}}
+try{const j=JSON.parse(t.value);if(!Array.isArray(j.ev))throw 0;S=fixN(j)}catch(x){m.textContent='That doesn’t look like a backup.';return}}
 else if(a=='tick')E.s[sid].items[i].d=b.checked;
 else if(a=='del')E.s[sid].items.splice(i,1);
 else if(a=='dellink')E.s[sid].links.splice(i,1);
