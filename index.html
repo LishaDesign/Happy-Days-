@@ -34,6 +34,7 @@ label input{display:block;width:100%;color:var(--ink)}
 .back{background:none;border:0;color:var(--acc);padding:4px 0;font-size:20px}
 .ch{display:flex;align-items:center;gap:10px}
 .ch h2{font:700 38px 'Caveat',cursive;margin:0}
+.sm{font-size:.62em;font-weight:700}.grid .sm{display:block;line-height:1}.grid .card svg,.ch svg{flex-shrink:0}
 .title{flex:1;font:700 34px 'Caveat',cursive;background:none;border:0;border-bottom:2px dashed var(--line);border-radius:0;width:100%}
 summary{font:700 28px 'Caveat',cursive;cursor:pointer}
 h4{margin:12px 0 2px;color:var(--acc)}
@@ -108,7 +109,7 @@ const PN={christmas:TREE,birthday:FLAGS,special:GLASS,away:ROAD};
 const BL={christmas:'#8fc6a0',birthday:'#b9a2dc',special:'#e8c66a',away:'#8ec3dc'};
 const ic=(k,s=64)=>k=='smile'?`<svg viewBox="0 0 64 64" width="${s}" height="${s}" fill="none" stroke="#4b5d66" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="filter:url(#rough) brightness(1.1) contrast(1.15) saturate(1.15)" aria-hidden="true">${P[k]}</svg>`:`<svg viewBox="0 0 64 64" width="${s}" height="${s}" fill="none" stroke="none" stroke-linecap="round" stroke-linejoin="round" style="filter:url(#wp) brightness(1.1) ${k=='away'?'':'contrast(1.15) '}saturate(1.15)" aria-hidden="true">${PN[k]}</svg>`;
 
-const C={away:{n:'Weekends away',col:'#4a7d9c',ph:'e.g. Cottage weekend'},birthday:{n:'Birthdays',col:'#8a5a96',ph:'e.g. Birthday party'},christmas:{n:'Christmas',col:'#3f7550',ph:'e.g. Christmas 2026'},special:{n:'Special occasions',col:'#8a7a2a',ph:'e.g. Anniversary dinner'}};
+const C={away:{n:'Weekends away<span class="sm"> and Holidays</span>',col:'#4a7d9c',ph:'e.g. Cottage weekend'},birthday:{n:'Birthdays',col:'#8a5a96',ph:'e.g. Birthday party'},christmas:{n:'Christmas',col:'#3f7550',ph:'e.g. Christmas 2026'},special:{n:'Special occasions',col:'#8a7a2a',ph:'e.g. Anniversary dinner'}};
 const gen=[['place','Place'],['people','Number of people','number'],['date','Date','date'],['days','Number of days','number'],['theme','Theme'],['budget','Budget'],['weather','Weather']];
 const FL={
 away:[['place','Place'],['date','Start date','date'],['days','Number of days','number'],['people','People coming'],['cost','Cost'],['weather','Weather']],
