@@ -45,7 +45,8 @@ li span{flex:1}
 li.done span{text-decoration:line-through;opacity:.6}
 input[type=checkbox]{width:24px;height:24px;accent-color:var(--ok)}
 .x{background:none;border:0;color:var(--mut);font-size:24px;padding:0 6px}
-.gb{margin:10px 0;padding:6px 12px 10px;border:2px dashed var(--line);border-radius:16px}.gb h4{font:700 26px 'Caveat',cursive;margin:4px 0}.gc{display:inline-block;min-width:26px;padding:0 8px;border-radius:13px;background:var(--acc);color:var(--on);font:700 17px system-ui,sans-serif;text-align:center}.gt{margin:8px 0 2px}.gt b{font:700 24px 'Caveat',cursive}
+.gb{margin:10px 0;padding:6px 12px 10px;border:2px dashed var(--line);border-radius:16px}.gb h4{font:700 26px 'Caveat',cursive;margin:4px 0}.gc{display:inline-block;min-width:26px;padding:0 8px;border-radius:13px;background:var(--acc);color:var(--on);font:700 17px system-ui,sans-serif;text-align:center}input.gn{flex:1;border:0;border-radius:0;background:transparent;padding:4px 0;font-size:inherit;outline:none}input.gn::placeholder{color:var(--mut);opacity:.55}input.gn:focus{background:var(--card)}
+.gt{margin:8px 0 2px}.gt b{font:700 24px 'Caveat',cursive}
 .meal{position:relative;border:2px dashed var(--line);border-radius:12px;padding:8px 34px 8px 10px;margin:6px 0}
 .meal .x{position:absolute;right:2px;top:4px}
 .meal p{margin:4px 0 0}
@@ -139,7 +140,7 @@ function sec(e,[id,t,ty]){const k=e.id+id,o=e.s[id]=e.s[id]||{items:[],links:[]}
 const li=(x,i,tick)=>`<li class="${x.d?'done':x.when&&x.when<iso(new Date())?'late':''}">${tick?`<input type="checkbox" data-a="tick" data-i="${i}" ${x.d?'checked':''}>`:''}<span>${esc(x.t)}${x.when?` <small>${fs(x.when)}</small>`:''}</span><button class="x" data-a="del" data-i="${i}" aria-label="Remove">×</button></li>`;
 if(ty=='fields'){b=FL[e.cat].map(([f,l,tp])=>`<label>${l}<input data-f="${f}" type="${tp||'text'}" value="${esc(e.f[f])}"></label>`).join('')+`<a id="wx" href="${wxh(e)}" target="_blank" rel="noopener">See the forecast ↗</a>`}
 else{
-if(ty=='guests'){const G=[['Kids'],['Adults']],c=g=>it.filter(x=>x.g==g).length;b=G.map(([g])=>`<div class="gb"><h4>${g} <span class="gc">${c(g)}</span></h4><ul>${it.map((x,i)=>x.g==g?`<li><span>${esc(x.t)}</span><button class="x" data-a="del" data-i="${i}" aria-label="Remove">×</button></li>`:'').join('')}</ul><div class="add" data-g="${g}"><input type="hidden" name="g" value="${g}"><input name="t" placeholder="Type a name, press Return" autocomplete="off" autocapitalize="words" enterkeyhint="next"><button data-a="add">Add</button></div></div>`).join('')+`<p class="gt"><b>Total: ${it.length}</b> <small>${c('Kids')} kids · ${c('Adults')} adults</small></p>`}
+if(ty=='guests'){const G=['Kids','Adults'],c=g=>it.filter(x=>x.g==g).length;b=G.map(g=>`<div class="gb"><h4>${g} <span class="gc">${c(g)}</span></h4><ul>${it.map((x,i)=>x.g==g?`<li><input class="gn" data-g="${g}" data-gi="${i}" value="${esc(x.t)}" autocomplete=\"off\" autocapitalize=\"words\" enterkeyhint=\"next\"><button class="x" data-a="del" data-i="${i}" aria-label="Remove">×</button></li>`:'').join('')}<li><input class="gn" data-g="${g}" data-gi="new" placeholder="Add name" autocomplete=\"off\" autocapitalize=\"words\" enterkeyhint=\"next\"></li></ul></div>`).join('')+`<p class="gt"><b>Total: ${it.length}</b> <small>${c('Kids')} kids · ${c('Adults')} adults</small></p>`}
 else if(ty=='pack')b=GR.map(g=>`<h4>${g}</h4><ul>${it.map((x,i)=>x.w==g?li(x,i,1):'').join('')}</ul>`).join('');
 else if(ty=='meal'&&id=='food')b=`<ul>${it.map((x,i)=>`<li><span><b>${esc(x.t)}</b> <small>${x.ty||''}</small>${x.ing?`<br><small>🛒 ${esc(x.ing)}</small>`:''}</span><button class="x" data-a="del" data-i="${i}" aria-label="Remove">×</button></li>`).join('')}</ul>`;
 else if(ty=='meal')b=it.map((x,i)=>`<div class="meal ${/^Toddler/.test(x.ty)?'tod':''}"><b>${esc(x.t)}</b> <small>${x.ty}</small>${x.ing?`<p>🛒 ${esc(x.ing)}</p>`:''}<button class="x" data-a="del" data-i="${i}" aria-label="Remove">×</button></div>`).join('');
@@ -191,8 +192,12 @@ const gg=(b.closest('.add')||{dataset:{}}).dataset.g;save();render();if(a=='add'
 app.addEventListener('input',ev=>{const t=ev.target,E=cur();if(!E||V.p!='ev')return;
 if(t.dataset.f!==undefined){E.f[t.dataset.f]=t.value;if(t.dataset.f=='place'){const w=$('#wx');if(w)w.href=wxh(E)}save()}
 else if(t.dataset.name!==undefined){E.name=t.value;save()}
-else if(t.dataset.n!==undefined){E.s[t.dataset.n].text=t.value;save()}});
-app.addEventListener('keydown',ev=>{if(ev.key=='Enter'&&ev.target.closest('.add')){const b=ev.target.closest('.add').querySelector('button');if(b)b.click()}});
+else if(t.dataset.n!==undefined){E.s[t.dataset.n].text=t.value;save()}
+else if(t.dataset.gi!==undefined&&t.dataset.gi!='new'){const sd=(t.closest('[data-s]')||{dataset:{}}).dataset.s,x=E.s[sd]&&E.s[sd].items[+t.dataset.gi];if(x){x.t=t.value;save()}}});
+const gCommit=t=>{const E=cur();if(!E)return false;const sd=(t.closest('[data-s]')||{dataset:{}}).dataset.s,o=E.s[sd];if(!o)return false;const v=t.value.trim();if(t.dataset.gi=='new'){if(!v)return false;o.items.push({t:v,g:t.dataset.g});t.value='';save();return true}const i=+t.dataset.gi;if(!o.items[i])return false;if(!v){o.items.splice(i,1);save();return true}o.items[i].t=v;save();return false};
+app.addEventListener('change',ev=>{const t=ev.target;if(t.classList&&t.classList.contains('gn')&&gCommit(t))render()});
+app.addEventListener('keydown',ev=>{const t=ev.target;if(ev.key=='Enter'&&t.classList&&t.classList.contains('gn')){ev.preventDefault();const sd=(t.closest('[data-s]')||{dataset:{}}).dataset.s,g=t.dataset.g,blank=t.dataset.gi=='new'&&!t.value.trim();if(blank){t.blur();return}if(gCommit(t))render();const f=app.querySelector(`details[data-s="${sd}"] input.gn[data-gi="new"][data-g="${g}"]`);if(f)f.focus();return}
+if(ev.key=='Enter'&&ev.target.closest('.add')){const b=ev.target.closest('.add').querySelector('button');if(b)b.click()}});
 app.addEventListener('toggle',ev=>{const d=ev.target;if(d.dataset&&d.dataset.k)open[d.dataset.k]=d.open},true);
 render();
 </script></body></html>
