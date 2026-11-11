@@ -150,6 +150,7 @@ else b=`<ul>${it.map((x,i)=>li(x,i,ty=='check')).join('')}</ul>`;
 const sel=(n,a)=>`<select name="${n}">${a.map(g=>`<option>${g}</option>`).join('')}</select>`;
 if(ty=='meal'&&it.some(x=>x.ing)){const s=[...new Set(it.flatMap(x=>(x.ing||'').split(',').map(v=>v.trim().toLowerCase()).filter(Boolean)))];b+=`<p>🛒 <b>Shopping list:</b> ${esc(s.join(', '))}</p>`}
 if(ty!='notes'&&ty!='guests')b+=`<div class="add">${ty=='pack'?sel('w',GR):ty=='meal'?sel('ty',TY):ty=='events'?sel('k',KL):ty=='guests'?sel('g',['Kids','Adults']):''}<input name="t" placeholder="${ty=='meal'?'Meal or snack':ty=='events'?'Event name':ty=='check'?'Add a task…':ty=='guests'?'Name':'Add…'}">${ty=='meal'?'<input name="ing" placeholder="Ingredients (comma separated)">':''}${ty=='events'?'<label style="flex:1 1 130px;margin:0"><small>Starts</small><input name="date" type="date"></label><label style="flex:1 1 130px;margin:0"><small>Ends (optional, for several days)</small><input name="end" type="date"></label>':''}${ty=='check'?'<input name="when" type="date" title="Do by">':''}<button data-a="add">Add</button></div>`}
+if(ty=='meal'&&id=='food')b+=`<div class="lk"><h4>🛒 Food shopping list <small>press return for a new line</small></h4><textarea data-shop="food" rows="8" style="width:100%" placeholder="Milk&#10;Eggs&#10;Bread&#10;…" autocapitalize="sentences" enterkeyhint="enter">${esc(o.shop||'')}</textarea><div class="add"><button data-a="shopdl">⬇ Download</button><button data-a="shopshare">Share</button></div><small id="shm"></small></div>`;
 if(ty!='guests')b+=`<div class="lk"><h4>🔗 Links <small>accommodation, shopping, ideas</small></h4>${o.links.map((l,i)=>`<div class="lr"><a href="${esc(l.u)}" target="_blank" rel="noopener">${esc(l.l||l.u)} ↗</a><button class="x" data-a="dellink" data-i="${i}" aria-label="Remove link">×</button></div>`).join('')}<div class="add"><input name="l" placeholder="Label"><input name="u" placeholder="Paste a link"><button data-a="addlink">Add</button></div></div>`;
 const n=ty=='guests'&&it.length?` <small>${it.length}</small>`:(ty=='check'||ty=='pack')&&it.length?` <small>${it.filter(x=>x.d).length}/${it.length}</small>`:'';
 return `<details class="card" data-k="${k}" data-s="${id}" ${open[k]!==undefined?(open[k]?'open':''):id=='details'?'open':''}><summary>${t}${n}</summary>${b}</details>`}
@@ -180,6 +181,10 @@ else if(a=='newev'){let k=1;while(S.ev.some(x=>x.cat==V.c&&x.name==SG[V.c]+' '+k
 else if(a=='bk'||a=='rs'){const t=$('#bkt'),m=$('#bkm');
 if(a=='bk'){t.value=JSON.stringify(S);t.select();let ok=0;try{ok=document.execCommand('copy')}catch(x){}m.textContent=ok?'Copied! Paste it somewhere safe, like Notes.':'Select the text above, copy it and keep it somewhere safe.';return}
 try{const j=JSON.parse(t.value);if(!Array.isArray(j.ev))throw 0;S=fixN(j)}catch(x){m.textContent='That doesn’t look like a backup.';return}}
+else if(a=='shopdl'||a=='shopshare'){const tx=(E.s[sid].shop||'').trim(),m=$('#shm'),nm=(E.name||'Food')+' - shopping list';
+if(!tx){if(m)m.textContent='Type your list first.';return}
+if(a=='shopshare'){if(navigator.share){navigator.share({title:nm,text:nm+'\n\n'+tx}).catch(()=>{})}else{try{navigator.clipboard.writeText(tx);if(m)m.textContent='Copied! Paste it into Messages or Notes.'}catch(x){if(m)m.textContent='Sharing isn’t available here, use Download instead.'}}return}
+const bl=new Blob([nm+'\n\n'+tx+'\n'],{type:'text/plain'}),u=URL.createObjectURL(bl),l=document.createElement('a');l.href=u;l.download=nm.replace(/[^\w ]+/g,'').trim().replace(/ +/g,'-')+'.txt';document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);return}
 else if(a=='tick')E.s[sid].items[i].d=b.checked;
 else if(a=='del')E.s[sid].items.splice(i,1);
 else if(a=='dellink')E.s[sid].links.splice(i,1);
@@ -192,6 +197,7 @@ const gg=(b.closest('.add')||{dataset:{}}).dataset.g;save();render();if(a=='add'
 app.addEventListener('input',ev=>{const t=ev.target,E=cur();if(!E||V.p!='ev')return;
 if(t.dataset.f!==undefined){E.f[t.dataset.f]=t.value;if(t.dataset.f=='place'){const w=$('#wx');if(w)w.href=wxh(E)}save()}
 else if(t.dataset.name!==undefined){E.name=t.value;save()}
+else if(t.dataset.shop!==undefined){E.s[t.dataset.shop].shop=t.value;save()}
 else if(t.dataset.n!==undefined){E.s[t.dataset.n].text=t.value;save()}
 else if(t.dataset.gi!==undefined&&t.dataset.gi!='new'){const sd=(t.closest('[data-s]')||{dataset:{}}).dataset.s,x=E.s[sd]&&E.s[sd].items[+t.dataset.gi];if(x){x.t=t.value;save()}}});
 const gCommit=t=>{const E=cur();if(!E)return false;const sd=(t.closest('[data-s]')||{dataset:{}}).dataset.s,o=E.s[sd];if(!o)return false;const v=t.value.trim();if(t.dataset.gi=='new'){if(!v)return false;o.items.push({t:v,g:t.dataset.g});t.value='';save();return true}const i=+t.dataset.gi;if(!o.items[i])return false;if(!v){o.items.splice(i,1);save();return true}o.items[i].t=v;save();return false};
